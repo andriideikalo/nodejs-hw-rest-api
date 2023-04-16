@@ -1,6 +1,7 @@
 const contacts = require("../models/contacts");
 const RequestError = require("../helpers/RequestError");
 const contactSchema = require("../schemas/schemas");
+// const {validationBody} = require("../middlewares/validationBody");
 
 const getListContacts = async (_, res, next) => {
   try {
@@ -26,10 +27,6 @@ const getContactById = async (req, res, next) => {
 const postAddContact = async (req, res, next) => {
   try {
     console.log(req.body);
-    const { error } = contactSchema.validate(req.body);
-    if (error) {
-      throw RequestError(400, "missing required name field");
-    }
     const result = await contacts.addContact(req.body);
     res.status(201).json(result);
   } catch (error) {
@@ -54,14 +51,10 @@ const deleteContactById = async (req, res, next) => {
 
 const putContactById = async (req, res, next) => {
   try {
-    const { error } = contactSchema.validate(req.body);
-    if (error) {
-      throw RequestError(400, "missing required name field");
-    }
     const { contactId } = req.params;
     const result = await contacts.updateContact(contactId, req.body);
     if (!result) {
-      throw RequestError(400, "missing fields");
+      throw RequestError(404, "Not found");
     }
     res.json(result);
   } catch (error) {
